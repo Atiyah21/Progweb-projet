@@ -6,3 +6,6 @@ Ce service est disponible sous une image docker sur dockerhub: https://hub.docke
 
 L'image a été déployée sur un cluster kubernetes
 
+![Applikube](images/cluster.png)
+
+
