@@ -8,4 +8,13 @@ L'image a été déployée sur un cluster kubernetes
 
 ![Applikube](images/cluster.png)
 
+Le pod:
+
+![Applikube](images/pods.png)
+
+Et enfin l'application tourne bien:
+
+![Applikube](images/applikube.png)
+
+
 
