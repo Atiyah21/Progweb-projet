@@ -1,0 +1,42 @@
+#Service1
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service1
+  template:
+    metadata:
+      labels:
+        app: service1
+    spec:
+      containers:
+        - image: atiyah/service1:latest
+          imagePullPolicy: IfNotPresent
+          name: service1
+      restartPolicy: Always
+---
+
+#Service2
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service2
+  template:
+    metadata:
+      labels:
+        app: service2
+    spec:
+      containers:
+        - image: navdeep00/service2:1
+          imagePullPolicy: IfNotPresent
+          name: service2
+      restartPolicy: Always
