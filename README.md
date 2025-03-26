@@ -6,7 +6,7 @@ Ce service est disponible sous une image docker sur dockerhub: https://hub.docke
 
 L'image a été déployée kubernetes
 
-![Applikube](images/kube.png
+![Applikube](images/kube.png)
 
 Et l'application tourne bien:
 
