@@ -4,15 +4,11 @@ Cette page est sur un serveur apache Tomcat
 
 Ce service est disponible sous une image docker sur dockerhub: https://hub.docker.com/r/atiyah/service1
 
-L'image a été déployée sur un cluster kubernetes
+L'image a été déployée kubernetes
 
-![Applikube](images/cluster.png)
+![Applikube](images/kube.png
 
-Le pod:
-
-![Applikube](images/pods.png)
-
-Et enfin l'application tourne bien:
+Et l'application tourne bien:
 
 ![Applikube](images/applikube.png)
 
