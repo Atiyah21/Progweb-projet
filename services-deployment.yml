@@ -1,26 +1,41 @@
-#Service1
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: service1
+  name: service-login
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: service1
+      app: service-login
   template:
     metadata:
       labels:
-        app: service1
+        app: service-login
     spec:
       containers:
-        - image: atiyah/service1:latest
-          imagePullPolicy: IfNotPresent
-          name: service1
-      restartPolicy: Always
----
+      - name: service-login
+        image: atiyah/service_login:v3
+        ports:
+        - containerPort: 8080
+        env:
+          - name: SPRING_DATASOURCE_URL
+            value: "jdbc:postgresql://postgres-service:5432/mydb"  # Utilisation du service PostgreSQL
+          - name: SPRING_DATASOURCE_USERNAME
+            value: "aynav"  # Utilisation du nom d'utilisateur de PostgreSQL
+          - name: SPRING_DATASOURCE_PASSWORD
+            value: "aynav"  # Utilisation du mot de passe de PostgreSQL
+          - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+            value: "update"  # Ou "create" si vous souhaitez que la base soit recréée à chaque démarrage
+          - name: SPRING_JPA_SHOW_SQL
+            value: "true"  # Affiche les requêtes SQL générées par Hibernate dans les logs
 
-#Service2
+      initContainers:
+      - name: wait-for-postgres
+        image: busybox
+        command: ['sh', '-c', 'until nc -z postgres-service 5432; do echo waiting for postgres; sleep 2; done;']
+
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -36,7 +51,54 @@ spec:
         app: service2
     spec:
       containers:
-        - image: navdeep00/service2:1
-          imagePullPolicy: IfNotPresent
-          name: service2
-      restartPolicy: Always
+      - name: service2
+        image: navdeep00/service2:v2
+        ports:
+        - containerPort: 80
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:latest
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: "mydb"
+            - name: POSTGRES_USER
+              value: "aynav"
+            - name: POSTGRES_PASSWORD
+              value: "aynav"
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: postgres-pvc  # Utilisation d'un PVC pour la persistance des données
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+spec:
+  ports:
+    - port: 5432
+  selector:
+    app: postgres
+
