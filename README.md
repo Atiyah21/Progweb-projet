@@ -1,15 +1,18 @@
 ![Applikube](images/schema.png)
 
-Le premier service propose une page de connexion web sécurisée, connectée à une base PostgreSQL initialisée automatiquement, permettant de tester l’authentification d’utilisateurs via une interface simple.
+Nous avons une gateway ingress permettant de rediriger le traffic vers les bons services.
+![Applikube](images/ingress.png)
+
+
+![Applikube](images/pods.png)
+
+Le premier service propose une page web à /login, connectée à une base PostgreSQL initialisée automatiquement, permettant de tester l’authentification d’utilisateurs via une interface simple.
 Ce service est disponible sous une image docker sur dockerhub: https://hub.docker.com/r/atiyah/service_login
 
-Le deuxième service est une page affichant Hello World disponible à: https://hub.docker.com/r/navdeep00/service2
+![Applikube](images/form.png)
+![Applikube](images/bienvenue.png)
 
-![Applikube](images/kube.png)
+Le deuxième service est une page affichant Hello World à /hello disponible à: https://hub.docker.com/r/navdeep00/service2
 
-Et l'application tourne bien:
-
-![Applikube](images/applikube.png)
-
-
+![Applikube](images/Service2.png)
 
