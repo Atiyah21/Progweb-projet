@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -13,28 +14,11 @@ spec:
         app: service-login
     spec:
       containers:
-      - name: service-login
-        image: atiyah/service_login:v3
-        ports:
-        - containerPort: 8080
-        env:
-          - name: SPRING_DATASOURCE_URL
-            value: "jdbc:postgresql://postgres-service:5432/mydb"  # Utilisation du service PostgreSQL
-          - name: SPRING_DATASOURCE_USERNAME
-            value: "aynav"  # Utilisation du nom d'utilisateur de PostgreSQL
-          - name: SPRING_DATASOURCE_PASSWORD
-            value: "aynav"  # Utilisation du mot de passe de PostgreSQL
-          - name: SPRING_JPA_HIBERNATE_DDL_AUTO
-            value: "update"  # Ou "create" si vous souhaitez que la base soit recréée à chaque démarrage
-          - name: SPRING_JPA_SHOW_SQL
-            value: "true"  # Affiche les requêtes SQL générées par Hibernate dans les logs
-
-      initContainers:
-      - name: wait-for-postgres
-        image: busybox
-        command: ['sh', '-c', 'until nc -z postgres-service 5432; do echo waiting for postgres; sleep 2; done;']
-
-
+        - name: service-login
+          image: atiyah/service_login:v6  # Utilisation de l'image Spring Boot + PostgreSQL
+          ports:
+            - containerPort: 8080
+    
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -51,45 +35,36 @@ spec:
         app: service2
     spec:
       containers:
-      - name: service2
-        image: navdeep00/service2:v2
-        ports:
-        - containerPort: 80
+        - name: service2
+          image: navdeep00/service2:v2  # Image du service2
+          ports:
+            - containerPort: 8080
 
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: Service
 metadata:
-  name: postgres
+  name: service-login
 spec:
-  replicas: 1
   selector:
-    matchLabels:
-      app: postgres
-  template:
-    metadata:
-      labels:
-        app: postgres
-    spec:
-      containers:
-        - name: postgres
-          image: postgres:latest
-          ports:
-            - containerPort: 5432
-          env:
-            - name: POSTGRES_DB
-              value: "mydb"
-            - name: POSTGRES_USER
-              value: "aynav"
-            - name: POSTGRES_PASSWORD
-              value: "aynav"
-          volumeMounts:
-            - name: postgres-data
-              mountPath: /var/lib/postgresql/data
-      volumes:
-        - name: postgres-data
-          persistentVolumeClaim:
-            claimName: postgres-pvc  # Utilisation d'un PVC pour la persistance des données
+    app: service-login
+  ports:
+    - port: 8080
+      targetPort: 8080
+  type: ClusterIP  # Accès interne uniquement dans le cluster
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service2
+spec:
+  selector:
+    app: service2
+  ports:
+    - port: 8080
+      targetPort: 8080
+  type: ClusterIP  # Accès interne uniquement dans le cluster
 
 ---
 apiVersion: v1
@@ -97,8 +72,10 @@ kind: Service
 metadata:
   name: postgres-service
 spec:
+  selector:
+    app: service-login  # Utilise le même label pour pointer vers le service de base de données
   ports:
     - port: 5432
-  selector:
-    app: postgres
+      targetPort: 5432
+  type: ClusterIP  # Accès interne uniquement dans le cluster
 
