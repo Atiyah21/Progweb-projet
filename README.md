@@ -1,4 +1,5 @@
 Schéma du projet:
+
 ![Applikube](images/schema.png)
 
 Nous avons une gateway ingress permettant de rediriger le traffic vers les bons services.
