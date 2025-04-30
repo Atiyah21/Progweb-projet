@@ -1,8 +1,10 @@
+Schéma du projet:
 ![Applikube](images/schema.png)
 
 Nous avons une gateway ingress permettant de rediriger le traffic vers les bons services.
 ![Applikube](images/ingress.png)
 
+Chaque service a un pod et il y'a aussi un pod pour la base postgres qui sera utilisée.
 
 ![Applikube](images/pods.png)
 
