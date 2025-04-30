@@ -13,12 +13,23 @@ spec:
       labels:
         app: service-login
     spec:
+      initContainers:
+      - name: wait-for-postgres
+        image: busybox:1.28
+        command: ['sh', '-c', 'until nc -z postgres 5432; do echo "Waiting for PostgreSQL..."; sleep 2; done']
       containers:
         - name: service-login
-          image: atiyah/service_login:v6  # Utilisation de l'image Spring Boot + PostgreSQL
+          image: atiyah/service_login:v7
           ports:
             - containerPort: 8080
-    
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://postgres:5432/mydb"
+            - name: SPRING_DATASOURCE_USERNAME 
+              value: "aynav"  # <-- Changé pour correspondre à PostgreSQL
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "aynav"  # <-- Changé pour correspondre à PostgreSQL
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -36,46 +47,7 @@ spec:
     spec:
       containers:
         - name: service2
-          image: navdeep00/service2:v2  # Image du service2
+          image: navdeep00/service2:v2
           ports:
             - containerPort: 8080
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: service-login
-spec:
-  selector:
-    app: service-login
-  ports:
-    - port: 8080
-      targetPort: 8080
-  type: ClusterIP  # Accès interne uniquement dans le cluster
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: service2
-spec:
-  selector:
-    app: service2
-  ports:
-    - port: 8080
-      targetPort: 8080
-  type: ClusterIP  # Accès interne uniquement dans le cluster
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: postgres-service
-spec:
-  selector:
-    app: service-login  # Utilise le même label pour pointer vers le service de base de données
-  ports:
-    - port: 5432
-      targetPort: 5432
-  type: ClusterIP  # Accès interne uniquement dans le cluster
 
